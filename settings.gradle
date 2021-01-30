@@ -1,0 +1,3 @@
+rootProject.name = "AndroidLearnMore"
+include ':app'
+include ':versionupdate'

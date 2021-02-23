@@ -4,6 +4,7 @@
 
     <application>
         <activity android:name=".VersionUpdateActivity" />
+        <receiver android:name=".DownLoadCompleteReceiver" />
     </application>
 
 </manifest>

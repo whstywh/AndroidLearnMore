@@ -1,7 +1,9 @@
 buildscript {
     repositories {
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }// mavenCentral()国内镜像
-//        mavenCentral()
+//        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }// mavenCentral()国内镜像
+//        maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' } //google()国内镜像
+//        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} //jcenter()国内镜像
+        mavenCentral()
         google()
         jcenter()
         maven { url "https://jitpack.io" }
@@ -13,10 +15,10 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }// mavenCentral()国内镜像
+//        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }// mavenCentral()国内镜像
 //        maven { url 'http://maven.aliyun.com/nexus/content/repositories/google' } //google()国内镜像
 //        maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} //jcenter()国内镜像
-//        mavenCentral()
+        mavenCentral()
         google()
         jcenter()
         maven { url "https://jitpack.io" }

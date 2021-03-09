@@ -5,33 +5,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.MediaStore;
 
 import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-class CustomTakePicture extends ActivityResultContract<Uri, Bitmap> {
+class AlbumPicturePick extends ActivityResultContract<Void, Uri> {
 
     @CallSuper
     @NonNull
     @Override
-    public Intent createIntent(@NonNull Context context, @NonNull Uri input) {
-        return new Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                .putExtra(MediaStore.EXTRA_OUTPUT, input);
+    public Intent createIntent(@NonNull Context context, @NonNull Void unused) {
+        return new Intent(Intent.ACTION_GET_CONTENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("image/*");
     }
 
     @Nullable
     @Override
-    public final SynchronousResult<Bitmap> getSynchronousResult(@NonNull Context context, @Nullable Uri input) {
+    public final SynchronousResult<Uri> getSynchronousResult(@NonNull Context context, @NonNull Void unused) {
         return null;
     }
 
     @Nullable
     @Override
-    public final Bitmap parseResult(int resultCode, @Nullable Intent intent) {
+    public final Uri parseResult(int resultCode, @Nullable Intent intent) {
         if (intent == null || resultCode != Activity.RESULT_OK) return null;
-        return intent.getParcelableExtra("data");
+        return intent.getData();
     }
 }

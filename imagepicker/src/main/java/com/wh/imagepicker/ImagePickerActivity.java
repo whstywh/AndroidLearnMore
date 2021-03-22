@@ -3,6 +3,7 @@ package com.wh.imagepicker;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
@@ -34,6 +35,8 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
 
     private ImageView mAlbumImagge;
     private String mPermission;
+    private Uri mCaptureUri;
+    private Uri mCrop;
 
     //权限
     private final ActivityResultLauncher<String> mRequestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
@@ -52,13 +55,21 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
     //拍照
     private final ActivityResultLauncher<Uri> mTakePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(),
             result -> {
+                if (mCaptureUri != null) {
+                    crop(mCaptureUri);
+                }
             }
     );
+
     //相册
-    private final ActivityResultLauncher<Void> mAlbumPictureLauncher = registerForActivityResult(new AlbumPicturePick(),
+    private final ActivityResultLauncher<Void> mAlbumPictureLauncher = registerForActivityResult(new AlbumPicturePicker(),
+            this::crop
+    );
+
+    private final ActivityResultLauncher<Uri> mCropPickerLauncher = registerForActivityResult(new CropPicturePicker(),
             result -> {
                 ContentResolver resolver = getApplicationContext().getContentResolver();
-                try (InputStream stream = resolver.openInputStream(result)) {
+                try (InputStream stream = resolver.openInputStream(mCrop)) {
                     Bitmap bitmap = BitmapFactory.decodeStream(stream);
                     mAlbumImagge.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
                 } catch (IOException e) {
@@ -66,6 +77,7 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
                 }
             }
     );
+    private String mType;
 
 
     @Override
@@ -86,28 +98,18 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 capture();
             } else {
-                checkPermissionFun(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                checkPermissionFun("capture", Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
         } else if (v.getId() == R.id.album) {
-            checkPermissionFun(Manifest.permission.READ_EXTERNAL_STORAGE);
+            checkPermissionFun("album", Manifest.permission.READ_EXTERNAL_STORAGE);
         }
     }
 
 
     //拍照
     private void capture() {
-        ContentResolver resolver = getApplicationContext().getContentResolver();
-        Uri audioCollection;
-        // On API <= 28, use VOLUME_EXTERNAL instead.
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            audioCollection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-        } else {
-            audioCollection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-        }
-        ContentValues newSongDetails = new ContentValues();
-        newSongDetails.put(MediaStore.Images.Media.DISPLAY_NAME, System.currentTimeMillis() + ".jpg");
-        Uri myFavoriteSongUri = resolver.insert(audioCollection, newSongDetails);
-        mTakePictureLauncher.launch(myFavoriteSongUri);
+        mCaptureUri = pickerUtils.insertUri(this, pickerUtils.CAPTURE);
+        mTakePictureLauncher.launch(mCaptureUri);
     }
 
 
@@ -117,11 +119,22 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
     }
 
 
-    //申请权限
-    private void checkPermissionFun(String permission) {
+    private void crop(Uri uri) {
+        mCrop = pickerUtils.insertUri(this, pickerUtils.CROP);
+        mCropPickerLauncher.launch(uri);
+    }
 
-        mPermission = permission;
+    //申请权限
+    private void checkPermissionFun(String type, String permission) {
+        mType = type;
         if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+            if (type.equals("capture")) {
+
+            } else if (type.equals("album")) {
+
+            } else if (type.equals("crop")) {
+
+            }
             if (mPermission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 capture();
             } else if (mPermission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {

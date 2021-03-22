@@ -11,7 +11,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-class AlbumPicturePick extends ActivityResultContract<Void, Uri> {
+class AlbumPicturePicker extends ActivityResultContract<Void, Uri> {
 
     @CallSuper
     @NonNull

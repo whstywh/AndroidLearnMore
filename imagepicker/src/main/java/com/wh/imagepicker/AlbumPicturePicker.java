@@ -17,9 +17,7 @@ class AlbumPicturePicker extends ActivityResultContract<Void, Uri> {
     @NonNull
     @Override
     public Intent createIntent(@NonNull Context context, @NonNull Void unused) {
-        return new Intent(Intent.ACTION_GET_CONTENT)
-                .addCategory(Intent.CATEGORY_OPENABLE)
-                .setType("image/*");
+        return new Intent(Intent.ACTION_GET_CONTENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*");
     }
 
     @Nullable

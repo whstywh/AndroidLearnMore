@@ -7,8 +7,8 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,31 +25,36 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
  * 2021/3/9
  * wh
- * desc：拍照，相册选择 兼容Android 11
+ * desc：拍照，相册选择 裁剪 兼容Android 11
  */
 public class ImagePickerActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ImageView mAlbumImagge;
-    private String mPermission;
     private Uri mCaptureUri;
-    private Uri mCrop;
+    private String mType;
 
     //权限
-    private final ActivityResultLauncher<String> mRequestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+    private final ActivityResultLauncher<String[]> mRequestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(),
             result -> {
-                if (result) {
-                    if (mPermission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                        capture();
-                    } else if (mPermission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        album();
+                Set<Map.Entry<String, Boolean>> entries = result.entrySet();
+                for (Map.Entry<String, Boolean> entry : entries) {
+                    if (!entry.getValue()) {
+                        Toast.makeText(this, entry.getKey() + "权限申请失败！", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                } else {
-                    Toast.makeText(ImagePickerActivity.this, "申请权限失败", Toast.LENGTH_LONG).show();
+                }
+                if (mType.equals("capture")) {
+                    capture();
+                } else if (mType.equals("album")) {
+                    album();
                 }
             });
 
@@ -66,18 +72,20 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
             this::crop
     );
 
+    //裁剪
     private final ActivityResultLauncher<Uri> mCropPickerLauncher = registerForActivityResult(new CropPicturePicker(),
             result -> {
-                ContentResolver resolver = getApplicationContext().getContentResolver();
-                try (InputStream stream = resolver.openInputStream(mCrop)) {
-                    Bitmap bitmap = BitmapFactory.decodeStream(stream);
-                    mAlbumImagge.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (result != null) {
+                    ContentResolver resolver = getApplicationContext().getContentResolver();
+                    try (InputStream stream = resolver.openInputStream(result)) {
+                        Bitmap bitmap = BitmapFactory.decodeStream(stream);
+                        mAlbumImagge.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
     );
-    private String mType;
 
 
     @Override
@@ -101,7 +109,11 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
                 checkPermissionFun("capture", Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
         } else if (v.getId() == R.id.album) {
-            checkPermissionFun("album", Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                checkPermissionFun("album", Manifest.permission.READ_EXTERNAL_STORAGE);
+            } else {
+                checkPermissionFun("album", Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
         }
     }
 
@@ -119,36 +131,28 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
     }
 
 
+    //裁剪
     private void crop(Uri uri) {
-        mCrop = pickerUtils.insertUri(this, pickerUtils.CROP);
         mCropPickerLauncher.launch(uri);
     }
 
     //申请权限
-    private void checkPermissionFun(String type, String permission) {
+    private void checkPermissionFun(String type, String... permission) {
         mType = type;
-        if (ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED) {
+        int allPermission = 0;
+        for (String s : permission) {
+            if (ContextCompat.checkSelfPermission(this, s) != PackageManager.PERMISSION_GRANTED) {
+                allPermission++;
+            }
+        }
+        if (allPermission == 0) {
             if (type.equals("capture")) {
-
-            } else if (type.equals("album")) {
-
-            } else if (type.equals("crop")) {
-
-            }
-            if (mPermission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 capture();
-            } else if (mPermission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            } else if (type.equals("album")) {
                 album();
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (shouldShowRequestPermissionRationale(permission)) {
-                Toast.makeText(this, "已拒绝此权限，展示该权限的使用说明", Toast.LENGTH_LONG).show();
-            } else {
-                mRequestPermissionLauncher.launch(permission);
             }
         } else {
             mRequestPermissionLauncher.launch(permission);
         }
     }
-
 }

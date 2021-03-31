@@ -36,6 +36,7 @@ dependencies {
     if (!isModule.toBoolean()) {
         implementation project(":versionupdate")
         implementation project(":imagepicker")
+        implementation project(":h5webview")
     }
 
     implementation 'androidx.appcompat:appcompat:1.2.0'

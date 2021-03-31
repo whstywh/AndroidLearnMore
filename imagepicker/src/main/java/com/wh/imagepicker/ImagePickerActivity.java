@@ -3,21 +3,16 @@ package com.wh.imagepicker;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.ActivityOptions;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -25,7 +20,6 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,7 +27,7 @@ import java.util.Set;
 /**
  * 2021/3/9
  * wh
- * desc：拍照，相册选择 裁剪 兼容Android 11
+ * desc：拍照,相册选择,裁剪
  */
 public class ImagePickerActivity extends AppCompatActivity implements View.OnClickListener {
 

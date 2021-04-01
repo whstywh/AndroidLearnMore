@@ -4,10 +4,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -22,7 +20,6 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,10 +54,11 @@ public class H5WebViewActivity extends AppCompatActivity {
         webSettings.setDisplayZoomControls(false); //是否隐藏缩放控件
 
         webSettings.setAllowFileAccess(true); //是否允许访问文件
+        //关闭无痕模式
         webSettings.setDomStorageEnabled(true); //是否节点缓存
         webSettings.setDatabaseEnabled(true); //是否数据缓存
         webSettings.setAppCacheEnabled(true); //是否应用缓存
-        webSettings.setAppCachePath(getExternalCacheDir().getPath()); //设置缓存路径
+//        webSettings.setAppCachePath(getExternalCacheDir().getPath()); //设置缓存路径
 
         webSettings.setMediaPlaybackRequiresUserGesture(false); //是否要手势触发媒体
         webSettings.setStandardFontFamily("sans-serif"); //设置字体库格式
@@ -73,7 +71,7 @@ public class H5WebViewActivity extends AppCompatActivity {
         webSettings.setMinimumFontSize(8); //设置文本字体的最小值(1~72)
         webSettings.setDefaultFontSize(16); //设置文本字体默认的大小
 
-        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING); //按规则重新布局
+        webSettings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING); //布局规则
         webSettings.setLoadsImagesAutomatically(true); //是否自动加载图片
         webSettings.setDefaultTextEncodingName("UTF-8"); //设置编码格式
         webSettings.setNeedInitialFocus(true); //是否需要获取焦点

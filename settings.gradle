@@ -1,5 +1,4 @@
 rootProject.name = "AndroidLearnMore"
 include ':app'
-include ':versionupdate'
-include ':imagepicker'
+include ':rwdata'
 include ':h5webview'

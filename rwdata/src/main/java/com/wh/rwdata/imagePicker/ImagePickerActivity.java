@@ -8,11 +8,14 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,6 +23,7 @@ import android.widget.Toast;
 
 import com.wh.rwdata.R;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -79,6 +83,23 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
+//                    try {
+//                        String path = null;
+//                        if (result.getScheme().equals(ContentResolver.SCHEME_FILE))
+//                            path =result.getPath();
+//                        else if (result.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+//                            Cursor cursor = this.getContentResolver().query(result,null, null, null, null);
+//                            if (cursor.moveToFirst()) {
+//                                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+//                            }
+//                            cursor.close();
+//                        }
+//                        //上传图片
+//                        //...
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
                 }
             }
     );
@@ -102,7 +123,7 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
                 capture();
             } else {
-                checkPermissionFun("capture", Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                checkPermissionFun("capture", Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
         } else if (v.getId() == R.id.album) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {

@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsPromptResult;
 import android.webkit.JsResult;
@@ -20,13 +22,15 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class H5WebViewActivity extends AppCompatActivity {
 
-    private WebView mWebview;
+    private WebView mWebView;
 
     @SuppressLint({"SetJavaScriptEnabled", "JavascriptInterface"})
     @Override
@@ -34,13 +38,16 @@ public class H5WebViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_h5_web_view);
 
-        mWebview = findViewById(R.id.webview);
+        FrameLayout frameLayout = findViewById(R.id.web_layout);
+        mWebView = new WebView(getApplicationContext());
+        frameLayout.addView(mWebView);
 
-        WebSettings webSettings = mWebview.getSettings();
+        WebSettings webSettings = mWebView.getSettings();
 
         webSettings.setJavaScriptEnabled(true);//启用 JavaScript
 
-        if (!webSettings.getUserAgentString().contains("h5webview")) {//自定义用户代理字符串，然后在网页中查询自定义用户代理，以验证请求网页的客户端实际上是您的Android 应用。
+        //自定义用户代理字符串，然后在网页中查询自定义用户代理，以验证请求网页的客户端实际上是您的Android 应用。
+        if (!webSettings.getUserAgentString().contains("h5webview")) {
             webSettings.setUserAgentString(webSettings.getUserAgentString() + "h5webview");
         }
 
@@ -78,30 +85,19 @@ public class H5WebViewActivity extends AppCompatActivity {
         webSettings.setGeolocationEnabled(true); //设置开启定位功能
         webSettings.setBlockNetworkLoads(true); //是否从网络获取资源
 
-        mWebview.setWebViewClient(new MyWebViewClient());
-        mWebview.setWebChromeClient(new MyWebChromeClient());
-        mWebview.loadUrl("https://www.baidu.com");
+        mWebView.setWebViewClient(new MyWebViewClient());
+        mWebView.setWebChromeClient(new MyWebChromeClient());
+        mWebView.loadUrl("https://www.baidu.com");
 
         //jsToAndroid
-        mWebview.addJavascriptInterface(this, "h5webview");
+        mWebView.addJavascriptInterface(this, "h5webview");
 //        mWebview.removeJavascriptInterface("h5webview");
     }
 
 
-    /**
-     * web页面中的js方法
-     * <p>
-     * function setter(name){
-     * this.name = name;
-     * }
-     * <p>
-     * function getter(){
-     * return this.name;
-     * }
-     */
     private void AndroidToJs() {
         // 调用有参无返回值的函数
-        mWebview.loadUrl("javascript:setter('" + "name" + "');");
+        mWebView.loadUrl("javascript:setter('" + "name" + "');");
         //调用无参有返回值的函数
 //        mWebview.evaluateJavascript("getter()", s //System.out.println("my name is "+s));
     }
@@ -111,6 +107,27 @@ public class H5WebViewActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        if (mWebView != null) {
+            mWebView.loadUrl("about:blank");
+            ViewParent parent = mWebView.getParent();
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(mWebView);
+            }
+            mWebView.stopLoading();
+            mWebView.getSettings().setJavaScriptEnabled(false);
+            mWebView.clearHistory();
+            mWebView.clearCache(true);
+            mWebView.removeAllViewsInLayout();
+            mWebView.removeAllViews();
+            mWebView.setWebChromeClient(null);
+            mWebView.setWebViewClient(null);
+            mWebView.destroy();
+            mWebView = null;
+        }
+        super.onDestroy();
+    }
 
     static class MyWebViewClient extends WebViewClient {
 

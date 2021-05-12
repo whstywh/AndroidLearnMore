@@ -6,7 +6,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-public class pickerUtils {
+public class PickerUtils {
 
     public static final String CAPTURE = "capture";
     public static final String CROP = "crop";

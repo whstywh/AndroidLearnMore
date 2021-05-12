@@ -8,14 +8,11 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,7 +20,6 @@ import android.widget.Toast;
 
 import com.wh.rwdata.R;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -121,7 +117,7 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         if (v.getId() == R.id.capture) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                capture();
+                checkPermissionFun("capture", Manifest.permission.CAMERA);
             } else {
                 checkPermissionFun("capture", Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
@@ -137,7 +133,7 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
 
     //拍照
     private void capture() {
-        mCaptureUri = pickerUtils.insertUri(this, pickerUtils.CAPTURE);
+        mCaptureUri = PickerUtils.insertUri(this, PickerUtils.CAPTURE);
         mTakePictureLauncher.launch(mCaptureUri);
     }
 

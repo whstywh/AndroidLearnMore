@@ -32,7 +32,7 @@ public class CropPicturePicker extends ActivityResultContract<Uri, Uri> {
         intent.putExtra("return-data", false);//true：返回缩略图，false：不返回、需要通过Uri
         intent.putExtra("noFaceDetection", false);//前置摄像头
         intent.setDataAndType(uri, "image/*");//裁剪图片源Uri和类型
-        mCropDesUri = PickerUtils.insertUri(context, PickerUtils.CROP);//裁剪后保存的目的uri
+        mCropDesUri = ImagePickerActivity.insertUri(context, ImagePickerActivity.CROP);//裁剪后保存的目的uri
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mCropDesUri);
         return intent;
     }

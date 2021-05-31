@@ -7,12 +7,15 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,10 +33,14 @@ import java.util.Set;
  * 2021/3/9
  * wh
  * desc：拍照,相册选择,裁剪
+ * TODO:废弃图片未删除
  */
 public class ImagePickerActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private ImageView mAlbumImagge;
+    public static final String CAPTURE = "capture";
+    public static final String CROP = "crop";
+
+    private ImageView mAlbumImage;
     private Uri mCaptureUri;
     private String mType;
 
@@ -75,11 +82,10 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
                     ContentResolver resolver = getApplicationContext().getContentResolver();
                     try (InputStream stream = resolver.openInputStream(result)) {
                         Bitmap bitmap = BitmapFactory.decodeStream(stream);
-                        mAlbumImagge.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+                        mAlbumImage.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
 //                    try {
 //                        String path = null;
 //                        if (result.getScheme().equals(ContentResolver.SCHEME_FILE))
@@ -100,13 +106,12 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
             }
     );
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
 
-        mAlbumImagge = findViewById(R.id.album_img);
+        mAlbumImage = findViewById(R.id.album_img);
         Button capture = findViewById(R.id.capture);
         Button album = findViewById(R.id.album);
         capture.setOnClickListener(this);
@@ -130,19 +135,16 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-
     //拍照
     private void capture() {
-        mCaptureUri = PickerUtils.insertUri(this, PickerUtils.CAPTURE);
+        mCaptureUri = ImagePickerActivity.insertUri(this, ImagePickerActivity.CAPTURE);
         mTakePictureLauncher.launch(mCaptureUri);
     }
-
 
     //相册
     private void album() {
         mAlbumPictureLauncher.launch(null);
     }
-
 
     //裁剪
     private void crop(Uri uri) {
@@ -167,5 +169,23 @@ public class ImagePickerActivity extends AppCompatActivity implements View.OnCli
         } else {
             mRequestPermissionLauncher.launch(permission);
         }
+    }
+
+    /*
+     * 兼容Android 11 分区存储
+     * 保存图片到系统共享存储空间，并返回uri
+     * */
+    public static Uri insertUri(Context context, String picName) {
+        ContentResolver resolver = context.getApplicationContext().getContentResolver();
+        Uri sUri;
+        // On API <= 28, use VOLUME_EXTERNAL instead.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            sUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        } else {
+            sUri = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+        }
+        ContentValues desUri = new ContentValues();
+        desUri.put(MediaStore.Images.Media.DISPLAY_NAME, picName + ".jpg");
+        return resolver.insert(sUri, desUri);
     }
 }

@@ -7,9 +7,10 @@ buildscript {
         google()
         jcenter()
         maven { url "https://jitpack.io" }
+        maven {url 'https://developer.huawei.com/repo/'}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha07'
+        classpath 'com.android.tools.build:gradle:4.1.1'
     }
 }
 
@@ -22,6 +23,7 @@ allprojects {
         google()
         jcenter()
         maven { url "https://jitpack.io" }
+        maven {url 'https://developer.huawei.com/repo/'}
     }
 }
 

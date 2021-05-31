@@ -2,3 +2,6 @@ rootProject.name = "AndroidLearnMore"
 include ':app'
 include ':rwdata'
 include ':h5webview'
+include ':app:scankit'
+include ':scankit'
+include ':materialsample'
